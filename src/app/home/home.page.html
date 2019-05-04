@@ -1,0 +1,32 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>
+      Tareas
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="openAlert()">
+        <ion-icon slot="icon-only" name="add"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-list>
+    <ion-item-sliding *ngFor="let task of tasks; let index = i">
+      <ion-item>
+        <ion-label>{{ task.title }}</ion-label>
+        <ion-checkbox [checked]="task.completed" slot="start"></ion-checkbox>
+      </ion-item>
+      <ion-item-options side="end">
+        <ion-item-option (click)="deleteTask(task.id, index)" color="danger">
+          <ion-icon name="trash"></ion-icon>
+        </ion-item-option>
+        <ion-item-option (click)="updateTask(task.id, index)" color="Secundary">
+          <ion-icon name="add"></ion-icon>
+        </ion-item-option>
+      </ion-item-options>
+
+    </ion-item-sliding>
+  </ion-list>
+</ion-content>
