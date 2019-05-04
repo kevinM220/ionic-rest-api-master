@@ -30,12 +30,12 @@ export class TasksService {
   }
 
   updateTask(task: Task) {
-    const path = `${this.api}/task/${task.id}`;
+    const path = `${this.api}/task/updateTask/${task.id}`;
     return this.http.put<Task>(path, task);
   }
 
   deleteTask(id: string) {
-    const path = `${this.api}/task/deleteTask${id}`;
+    const path = `${this.api}/task/deleteTask/${id}`;
     return this.http.delete(path);
   }
 }

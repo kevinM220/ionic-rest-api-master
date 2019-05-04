@@ -5,6 +5,7 @@ import { AlertController, ToastController, LoadingController } from '@ionic/angu
 import { TasksService } from './../services/tasks.service';
 import { Task } from './../interfaces/task';
 
+
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
@@ -13,6 +14,8 @@ import { Task } from './../interfaces/task';
 export class HomePage implements OnInit {
 
   tasks: Task[] = [];
+
+
 
   constructor(
     private tasksService: TasksService,
@@ -34,34 +37,7 @@ export class HomePage implements OnInit {
     });
   }
 
-  async openAlert() {
-    const alert = await this.alertCtrl.create({
-      header: 'Nueva Dato!',
-      inputs: [
-        {
-          name: 'title',
-          type: 'text',
-          placeholder: 'aqui la tarea'
-        },
-      ],
-      buttons: [
-        {
-          text: 'Cancelar',
-          role: 'cancel',
-          cssClass: 'secondary',
-          handler: () => {
-            console.log('Confirm Cancel');
-          }
-        }, {
-          text: 'Crear',
-          handler: (data) => {
-            this.createTask(data.title);
-          }
-        }
-      ]
-    });
-    await alert.present();
-  }
+
 
   createTask(title: string) {
     const task = {
@@ -75,14 +51,30 @@ export class HomePage implements OnInit {
     });
   }
 
+  updateTask() {
+    const task = {
+      id: '5ccde75937edd828a932020d',
+      userId: '1',
+      title: 'por otro titulo',
+      completed: true
+    };
+    this.tasksService.updateTask(task)
+        .subscribe(path => {
+          console.log(path);
+        });
+  }
+
+
+
   deleteTask(id: string, index: number) {
+    console.log(id);
     this.tasksService.deleteTask(id)
+
     .subscribe(() => {
       this.tasks.splice(index, 1);
       this.presentToast('Su tarea fue eliminada correctamente');
     });
   }
-
 
   async presentToast(message: string) {
     const toast = await this.toastCtrl.create({
