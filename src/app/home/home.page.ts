@@ -4,6 +4,9 @@ import { AlertController, ToastController, LoadingController } from '@ionic/angu
 
 import { TasksService } from './../services/tasks.service';
 import { Task } from './../interfaces/task';
+import {NotificationService} from '../services/Notification.server';
+import {BehaviorSubject} from 'rxjs';
+import {LIFECYCLE_HOOKS_VALUES} from '@angular/compiler/src/lifecycle_reflector';
 
 
 @Component({
@@ -12,8 +15,8 @@ import { Task } from './../interfaces/task';
   styleUrls: ['home.page.scss'],
 })
 export class HomePage implements OnInit {
-
-  tasks: Task[] = [];
+ public mySubject: BehaviorSubject<any>;
+ tasks: Task[] = [];
 
 
 
@@ -21,23 +24,74 @@ export class HomePage implements OnInit {
     private tasksService: TasksService,
     private alertCtrl: AlertController,
     private toastCtrl: ToastController,
-    private loadingCtrl: LoadingController
-  ) {}
+    private loadingCtrl: LoadingController,
+    private notificationService: NotificationService
+  ) {this.mySubject = new BehaviorSubject ( null); }
+
+
+  private handleMessageReceived(message: any): void {
+    console.log('Mensaje recibido:' + JSON.stringify(message));
+      this.tasksService.getAllTasks()
+          .subscribe(async (tasks) => {
+              console.log(tasks);
+              this.tasks = tasks;
+           });
+      }
+
+  /* ------------------------------------------------------------------------------------------------- */
+  public doNotificationSubscription(): void {
+    try {
+      this.notificationService.getTaskNotification().subscribe((result) => {
+        this.handleMessageReceived(result);
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  }
 
   async ngOnInit() {
     const loading = await this.loadingCtrl.create({
       message: 'Cargando..',
     });
     await loading.present();
+
+    this.doNotificationSubscription();
     this.tasksService.getAllTasks()
-    .subscribe(async (tasks) => {
+        .subscribe(async (tasks) => {
       console.log(tasks);
       this.tasks = tasks;
       await loading.dismiss();
     });
   }
 
-
+  async openAlert() {
+    const alert = await this.alertCtrl.create({
+      header: 'Nueva Dato!',
+      inputs: [
+        {
+          name: 'title',
+          type: 'text',
+          placeholder: 'aqui la tarea'
+        },
+      ],
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancel',
+          cssClass: 'secondary',
+          handler: () => {
+            console.log('Confirm Cancel');
+          }
+        }, {
+          text: 'Crear',
+          handler: (data) => {
+            this.createTask(data.title);
+          }
+        }
+      ]
+    });
+    await alert.present();
+  }
 
   createTask(title: string) {
     const task = {
@@ -51,29 +105,17 @@ export class HomePage implements OnInit {
     });
   }
 
-  updateTask() {
-    const task = {
-      id: '5ccde75937edd828a932020d',
-      userId: '1',
-      title: 'por otro titulo',
-      completed: true
-    };
-    this.tasksService.updateTask(task)
-        .subscribe(path => {
-          console.log(path);
-        });
-  }
-
 
 
   deleteTask(id: string, index: number) {
-    console.log(id);
+
     this.tasksService.deleteTask(id)
 
     .subscribe(() => {
       this.tasks.splice(index, 1);
       this.presentToast('Su tarea fue eliminada correctamente');
     });
+
   }
 
   async presentToast(message: string) {
@@ -89,6 +131,7 @@ export class HomePage implements OnInit {
       message: 'Cargand',
       duration: 20000
     });
+
     await loading.present();
     return loading;
   }

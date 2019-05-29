@@ -15,22 +15,23 @@ export class TasksService {
   ) { }
 
   getAllTasks() {
-    const path = `${this.api}/task/getTask`;
+    const path = `${this.api}/task/all`;
     return this.http.get<Task[]>(path);
+
   }
 
   getTask(id: string) {
-    const path = `${this.api}/task/getTask${id}`;
+    const path = `${this.api}/task/getTask/${id}`;
     return this.http.get<Task>(path);
   }
 
   createTask(task: Task) {
-    const path = `${this.api}/task/createTask`;
+    const path = `${this.api}/task/create`;
     return this.http.post<Task>(path, task);
   }
 
   updateTask(task: Task) {
-    const path = `${this.api}/task/updateTask/${task.id}`;
+    const path = `${this.api}/task/${task.id}`;
     return this.http.put<Task>(path, task);
   }
 
